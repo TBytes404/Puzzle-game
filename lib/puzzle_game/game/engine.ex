@@ -1,27 +1,21 @@
 defmodule PuzzleGame.Game.Engine do
-  alias PuzzleGame.Game.Puzzle
+  alias PuzzleGame.Puzzle
 
-  defstruct current: nil, failed: 0
+  defstruct current: nil, tries: 0
 
-  def new(current) do
-    %__MODULE__{current: Puzzle.exists(current)}
+  def new(current, tries \\ 3) do
+    %__MODULE__{current: current |> Puzzle.exists(), tries: tries |> abs()}
   end
 
   def quest(%__MODULE__{current: cur}) do
     Puzzle.get(cur)[:quest]
   end
 
-  defp next(%__MODULE__{failed: n, current: cur}, nil),
-    do: %__MODULE__{failed: n + 1, current: if(n < 2, do: cur, else: nil)}
+  def answer(%__MODULE__{tries: n, current: cur} = state, input) do
+    puz = Puzzle.get(cur)
 
-  defp next(_, nxt),
-    do: %__MODULE__{current: Puzzle.exists(nxt)}
-
-  def(answer(%__MODULE__{current: cur} = state, input)) do
-    with puz <- Puzzle.get(cur) do
-      if puz[:answer] == input,
-        do: {puz[:pass], next(state, puz[:next])},
-        else: {puz[:hint], next(state, nil)}
-    end
+    if puz[:answer] == input,
+      do: {puz[:pass], %__MODULE__{state | current: puz[:next] |> Puzzle.exists()}},
+      else: {puz[:hint], %__MODULE__{tries: n - 1, current: if(n > 1, do: cur)}}
   end
 end

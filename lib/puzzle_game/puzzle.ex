@@ -1,4 +1,4 @@
-defmodule PuzzleGame.Game.Puzzle do
+defmodule PuzzleGame.Puzzle do
   @puzzles %{
     entrance: %{
       quest: "You see a door with a riddle etched into it.\n
