@@ -1,0 +1,28 @@
+# stories/locked_chamber.yaml
+__meta__:
+  title: |
+    The Locked Chamber
+    Solve the puzzles to escape!
+  author: SilentWraith
+  tries: 3
+
+entrance:
+  quest: |
+    You see a door with a riddle etched into it.
+
+    I speak without a mouth and hear without ears.
+    I have nobody, but i come alive with wind.
+    What am I?
+  answer: echo
+  hint: "Wrong answer. Hint: You hear it in the caves-"
+  pass: "The door opens!"
+  next: final
+
+final:
+  quest: |
+    You enter the final room.
+
+    A box asks: what number comes next? 2, 4, 8, 16, ?
+  answer: 32
+  hint: "Incorrect. Think powers of two."
+  pass: "You solved all puzzles and escaped!"

@@ -1,21 +1,25 @@
 defmodule PuzzleGame.Game.Engine do
-  alias PuzzleGame.Puzzle
+  alias PuzzleGame.Puzzle.Provider
 
-  defstruct current: nil, tries: 0
+  defstruct current: nil, tries: 0, puzzles: %{}
 
-  def new(current, tries \\ 3) do
-    %__MODULE__{current: current |> Puzzle.exists(), tries: tries |> abs()}
+  def new(puzzles, current, tries \\ 3) do
+    %__MODULE__{
+      puzzles: puzzles,
+      current: puzzles |> Provider.exists(current),
+      tries: tries |> abs()
+    }
   end
 
-  def quest(%__MODULE__{current: cur}) do
-    Puzzle.get(cur)[:quest]
+  def quest(%__MODULE__{puzzles: p, current: cur}) do
+    Provider.get(p, cur)["quest"]
   end
 
-  def answer(%__MODULE__{tries: n, current: cur} = state, input) do
-    puz = Puzzle.get(cur)
+  def answer(%__MODULE__{puzzles: p, current: cur, tries: n} = state, input) do
+    puz = Provider.get(p, cur)
 
-    if puz[:answer] == input,
-      do: {puz[:pass], %__MODULE__{state | current: puz[:next] |> Puzzle.exists()}},
-      else: {puz[:hint], %__MODULE__{tries: n - 1, current: if(n > 1, do: cur)}}
+    if puz["answer"] |> to_string() == input,
+      do: {puz["pass"], %{state | current: Provider.exists(p, puz["next"])}},
+      else: {puz["hint"], %{state | current: if(n > 1, do: cur), tries: n - 1}}
   end
 end
