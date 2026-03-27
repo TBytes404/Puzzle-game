@@ -1,25 +1,39 @@
 defmodule PuzzleGame.Game do
+  alias PuzzleGame.Puzzle
   alias PuzzleGame.Provider
 
-  defstruct [:current, tries: 0, puzzles: %{}]
+  defstruct provider: %Provider{}, puzzle: %Puzzle{}
 
-  def new(puzzles, current, tries \\ 3) do
-    %__MODULE__{
-      puzzles: puzzles,
-      current: puzzles |> Provider.exists(current),
-      tries: tries |> abs()
-    }
+  def start(provider) do
+    meta = Provider.meta(provider)
+    IO.puts("\n" <> meta.title <> "\t\tby " <> meta.author)
+
+    %__MODULE__{provider: provider, puzzle: Provider.get_puzzle(provider)}
+    |> play()
   end
 
-  def quest(%__MODULE__{puzzles: p, current: cur}) do
-    Provider.get(p, cur).quest
+  defp play(%{puzzle: nil}), do: :ok
+
+  defp play(%{puzzle: puz} = state) do
+    IO.puts("")
+    puz.quest |> IO.puts()
+
+    {reply, state} = answer(state, IO.gets("> "))
+    IO.puts(reply)
+
+    play(state)
   end
 
-  def answer(%__MODULE__{puzzles: p, current: cur, tries: n} = state, input) do
-    puz = Provider.get(p, cur)
+  defp answer(%__MODULE__{provider: p, puzzle: puz} = state, input) do
+    if puz.answer |> normalize() == input |> normalize(),
+      do: {puz.pass, %{state | puzzle: Provider.get_puzzle(p, puz.next)}},
+      else: {puz.hint, %{state | puzzle: if(puz.tries > 1, do: %{puz | tries: puz.tries - 1})}}
+  end
 
-    if puz.answer |> to_string() == input,
-      do: {puz.pass, %{state | current: Provider.exists(p, puz.next)}},
-      else: {puz.hint, %{state | current: if(n > 1, do: cur), tries: n - 1}}
+  defp normalize(answer) do
+    answer
+    |> to_string()
+    |> String.trim()
+    |> String.downcase()
   end
 end

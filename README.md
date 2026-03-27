@@ -29,12 +29,11 @@ end:
   answer: final
   hint: "Hint"
   pass: "You escaped!"
-  next: ~
 ```
 
 ## Architecture
 
-- `Cli` - Game loop & I/O
-- `Game` - State machine
+- `Start` - Mix Task
+- `Game` - Game loop & I/O
 - `Provider` - Loads puzzles (YAML)
 - `Puzzle` / `Meta` - Data structs

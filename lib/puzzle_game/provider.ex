@@ -1,25 +1,36 @@
 defmodule PuzzleGame.Provider do
+  alias PuzzleGame.Meta
+  alias PuzzleGame.Puzzle
+
+  defstruct []
+
   def new(path) do
     path
     |> YamlElixir.read_from_file!()
-    |> atomize()
+    |> atomize_keys()
   end
 
-  def meta(puzzles), do: PuzzleGame.Meta |> struct(puzzles.__meta__)
+  def meta(provider), do: struct(Meta, provider.__meta__)
 
-  def exists(puzzles, label),
-    do: with_key(label, &if(Map.has_key?(puzzles, &1), do: label))
+  def get_puzzle(provider),
+    do: get_puzzle(provider, meta(provider).entry)
 
-  def get(puzzles, label),
-    do: with_key(label, &(PuzzleGame.Puzzle |> struct(puzzles[&1])))
-
-  defp atomize(map) when is_map(map) do
-    Map.new(map, fn {k, v} ->
-      {String.to_atom(k), atomize(v)}
+  def get_puzzle(provider, label) do
+    with_key(label, fn key ->
+      puzzle = struct(Puzzle, provider[key])
+      %{puzzle | tries: puzzle.tries || meta(provider).tries}
     end)
   end
 
-  defp atomize(val), do: val
+  defp atomize_keys(map) when is_map(map) do
+    Map.new(map, fn {k, v} ->
+      {String.to_atom(k), atomize_keys(v)}
+    end)
+  end
+
+  defp atomize_keys(val), do: val
+
+  defp with_key("__meta__", _), do: nil
 
   defp with_key(label, fun) do
     label
