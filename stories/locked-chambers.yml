@@ -1,10 +1,10 @@
-# stories/locked_chamber.yaml
 __meta__:
   title: |
     The Locked Chamber
     Solve the puzzles to escape!
   author: SilentWraith
   tries: 3
+  entry: entrance
 
 entrance:
   quest: |

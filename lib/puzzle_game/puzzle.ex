@@ -1,3 +1,3 @@
 defmodule PuzzleGame.Puzzle do
-  defstruct [:entrance, :quest, :hint, :answer, :pass, :next]
+  defstruct [:quest, :answer, :hint, :pass, :next]
 end

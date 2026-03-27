@@ -1,23 +1,23 @@
 defmodule PuzzleGame.Cli do
-  alias PuzzleGame.Game.Engine
-  alias PuzzleGame.Puzzle.Provider
+  alias PuzzleGame.Game
+  alias PuzzleGame.Provider
 
-  def start(path \\ "stories/locked-chambers.yml") do
+  def start(path) do
     puzzles = Provider.new(path)
     meta = puzzles |> Provider.meta()
     IO.puts("\n" <> meta.title <> "\t\tby " <> meta.author)
 
     puzzles
-    |> Engine.new("entrance", meta.tries)
+    |> Game.new(meta.entry, meta.tries)
     |> play()
   end
 
-  def play(%{current: nil}), do: :ok
+  defp play(%{current: nil}), do: :ok
 
-  def play(state) do
+  defp play(state) do
     IO.puts("")
 
-    Engine.quest(state)
+    Game.quest(state)
     |> IO.puts()
 
     answer =
@@ -25,7 +25,7 @@ defmodule PuzzleGame.Cli do
       |> String.trim()
       |> String.downcase()
 
-    {reply, state} = Engine.answer(state, answer)
+    {reply, state} = Game.answer(state, answer)
     IO.puts(reply)
 
     play(state)
