@@ -13,19 +13,18 @@ defmodule PuzzleGame.Game do
     }
   end
 
-  @doc "Process answer, returns {:pass or :hint or :fail, message, game}"
+  @doc "Process answer, returns {game or nil, message}"
   def answer(%__MODULE__{puzzle: puzzle} = game, input) do
-    if Puzzle.correct?(puzzle, input) do
-      next_puzzle = Story.next_puzzle(game.story, puzzle)
-      {:pass, puzzle.pass, %{game | puzzle: next_puzzle}}
-    else
-      case Puzzle.decrement_tries(puzzle) do
-        nil -> {:fail, puzzle.hint, game}
-        new_puzzle -> {:hint, puzzle.hint, %{game | puzzle: new_puzzle}}
-      end
+    case Puzzle.check_answer(puzzle, input) do
+      {:pass, puzzle} ->
+        next_puzzle = Story.next_puzzle(game.story, puzzle)
+        {if(next_puzzle, do: %{game | puzzle: next_puzzle}), puzzle.pass}
+
+      {:hint, puzzle} ->
+        {%{game | puzzle: puzzle}, puzzle.hint}
+
+      {:fail, _} ->
+        {nil, "Better luck next time!"}
     end
   end
-
-  def over?(%__MODULE__{puzzle: nil}), do: true
-  def over?(%__MODULE__{}), do: false
 end
