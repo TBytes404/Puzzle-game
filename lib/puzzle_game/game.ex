@@ -1,39 +1,31 @@
 defmodule PuzzleGame.Game do
+  @moduledoc "Game state machine - pure logic, no IO"
+
   alias PuzzleGame.Puzzle
-  alias PuzzleGame.Provider
+  alias PuzzleGame.Story
 
-  defstruct provider: %Provider{}, puzzle: %Puzzle{}
+  defstruct [:story, :puzzle]
 
-  def start(provider) do
-    meta = Provider.meta(provider)
-    IO.puts("\n" <> meta.title <> "\t\tby " <> meta.author)
-
-    %__MODULE__{provider: provider, puzzle: Provider.get_puzzle(provider)}
-    |> play()
+  def new(%Story{} = story) do
+    %__MODULE__{
+      story: story,
+      puzzle: Story.entry_puzzle(story)
+    }
   end
 
-  defp play(%{puzzle: nil}), do: :ok
-
-  defp play(%{puzzle: puz} = state) do
-    IO.puts("")
-    puz.quest |> IO.puts()
-
-    {reply, state} = answer(state, IO.gets("> "))
-    IO.puts(reply)
-
-    play(state)
+  @doc "Process answer, returns {:pass or :hint or :fail, message, game}"
+  def answer(%__MODULE__{puzzle: puzzle} = game, input) do
+    if Puzzle.correct?(puzzle, input) do
+      next_puzzle = Story.next_puzzle(game.story, puzzle)
+      {:pass, puzzle.pass, %{game | puzzle: next_puzzle}}
+    else
+      case Puzzle.decrement_tries(puzzle) do
+        nil -> {:fail, puzzle.hint, game}
+        new_puzzle -> {:hint, puzzle.hint, %{game | puzzle: new_puzzle}}
+      end
+    end
   end
 
-  defp answer(%__MODULE__{provider: p, puzzle: puz} = state, input) do
-    if puz.answer |> normalize() == input |> normalize(),
-      do: {puz.pass, %{state | puzzle: Provider.get_puzzle(p, puz.next)}},
-      else: {puz.hint, %{state | puzzle: if(puz.tries > 1, do: %{puz | tries: puz.tries - 1})}}
-  end
-
-  defp normalize(answer) do
-    answer
-    |> to_string()
-    |> String.trim()
-    |> String.downcase()
-  end
+  def over?(%__MODULE__{puzzle: nil}), do: true
+  def over?(%__MODULE__{}), do: false
 end

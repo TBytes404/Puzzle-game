@@ -1,14 +1,9 @@
 defmodule Mix.Tasks.Start do
-  alias PuzzleGame.Game
-  alias PuzzleGame.Provider
+  alias PuzzleGame.Cli
 
   use Mix.Task
 
   @impl true
   def run([]), do: run(["stories/locked-chambers.yml"])
-
-  def run([f | _]) do
-    provider = Provider.new(f)
-    Game.start(provider)
-  end
+  def run([path | _]), do: Cli.run(path)
 end

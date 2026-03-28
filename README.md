@@ -34,6 +34,7 @@ end:
 ## Architecture
 
 - `Start` - Mix Task
-- `Game` - Game loop & I/O
-- `Provider` - Loads puzzles (YAML)
+- `Cli` - Game loop & I/O
+- `Game` - Game state & Logic
+- `Story` / `Story.Importer` - Loads puzzles (YAML)
 - `Puzzle` / `Meta` - Data structs
