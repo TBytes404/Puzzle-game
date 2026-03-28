@@ -1,5 +1,5 @@
 defmodule PuzzleGame.Puzzle do
-  defstruct [:quest, :answer, :hint, :pass, :next, tries: 0]
+  defstruct [:label, :quest, :answer, :hint, :pass, :next, tries: 0]
 
   @doc "Check if input matches puzzle answer"
   def correct?(%__MODULE__{answer: answer}, input),

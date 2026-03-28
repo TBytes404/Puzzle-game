@@ -6,8 +6,6 @@ defmodule PuzzleGame.Story do
 
   defstruct [:meta, :puzzles]
 
-  def meta(%__MODULE__{meta: meta}), do: meta
-
   def entry_puzzle(%__MODULE__{meta: %Meta{entry: entry}} = story),
     do: next_puzzle(story, %Puzzle{next: entry})
 

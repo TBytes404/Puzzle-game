@@ -19,7 +19,8 @@ defmodule PuzzleGame.Story.Importer do
 
   defp build_puzzles(data, tries) do
     Map.new(data, fn {label, attrs} ->
-      {label, %{struct(Puzzle, attrs) | next: attrs[:next] |> as_atom(), tries: tries}}
+      {label,
+       %{struct(Puzzle, attrs) | next: attrs[:next] |> as_atom(), tries: tries, label: label}}
     end)
   end
 

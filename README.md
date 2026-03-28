@@ -2,10 +2,18 @@
 
 A CLI escape-room puzzle game. Play through YAML-defined stories, solve riddles, escape!
 
+## Server
+
 ```bash
 mix deps.get   # Install
 mix start      # Play
 mix start path/to/story.yml   # Custom story
+```
+
+## Client
+
+```bash
+nc localhost 4049
 ```
 
 ## Creating Stories
@@ -34,7 +42,7 @@ end:
 ## Architecture
 
 - `Start` - Mix Task
-- `Cli` - Game loop & I/O
+- `Server` - Game loop & I/O
 - `Game` - Game state & Logic
 - `Story` / `Story.Importer` - Loads puzzles (YAML)
 - `Puzzle` / `Meta` - Data structs
