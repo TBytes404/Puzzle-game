@@ -1,8 +1,8 @@
 defmodule PuzzleGame.Story.Importer do
   @moduledoc "Loads and parses YAML story files into domain structs"
 
-  alias PuzzleGame.Meta
   alias PuzzleGame.Puzzle
+  alias PuzzleGame.Story.Meta
 
   def load(path) do
     {meta, data} =

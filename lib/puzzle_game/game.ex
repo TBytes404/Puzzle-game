@@ -1,8 +1,8 @@
 defmodule PuzzleGame.Game do
   @moduledoc "Game state machine - pure logic, no IO"
 
-  alias PuzzleGame.Puzzle
   alias PuzzleGame.Story
+  alias PuzzleGame.Puzzle
 
   defstruct [:story, :puzzle]
 
@@ -12,6 +12,12 @@ defmodule PuzzleGame.Game do
       puzzle: Story.entry_puzzle(story)
     }
   end
+
+  def header(%__MODULE__{story: %Story{meta: %{title: title, author: author}}}),
+    do: "\n#{title}\t\tby #{author}\n"
+
+  def quest(%__MODULE__{puzzle: %Puzzle{quest: quest, label: label}}),
+    do: "\n#{label}> #{quest}\nanswer> "
 
   @doc "Process answer, returns {game or nil, message}"
   def answer(%__MODULE__{puzzle: puzzle} = game, input) do

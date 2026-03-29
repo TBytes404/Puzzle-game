@@ -1,7 +1,10 @@
 defmodule PuzzleGame.Story do
   @moduledoc "Provides puzzle access and navigation"
 
-  alias PuzzleGame.Meta
+  defmodule Meta do
+    defstruct [:title, :author, :entry, tries: 1]
+  end
+
   alias PuzzleGame.Puzzle
 
   defstruct [:meta, :puzzles]

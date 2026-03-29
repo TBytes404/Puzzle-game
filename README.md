@@ -43,6 +43,6 @@ end:
 
 - `Start` - Mix Task
 - `Game` - Game Logic
-- `Session` / `Server` - Game loop & I/O
-- `Story` / `Story.Importer` - Loads puzzles (YAML)
-- `Puzzle` / `Meta` - Domain Models
+- `Game.Server` - Game loop & I/O
+- `Story` & `Puzzle` - Domain Models
+- `Story.Importer` - Loads puzzles (YAML)
