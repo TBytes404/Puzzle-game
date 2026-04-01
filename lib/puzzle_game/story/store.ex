@@ -1,10 +1,10 @@
-defmodule PuzzleGame.Story.Importer do
+defmodule PuzzleGame.Story.Store do
   @moduledoc "Loads and parses YAML story files into domain structs"
 
   @stories_dir "stories/"
 
   alias PuzzleGame.Puzzle
-  alias PuzzleGame.Story.Meta
+  alias PuzzleGame.Story
 
   @spec load(binary()) :: Story.t()
   def load(id) do
@@ -15,26 +15,23 @@ defmodule PuzzleGame.Story.Importer do
       |> Map.pop(:__meta__)
 
     %PuzzleGame.Story{
-      meta: %{struct(Meta, meta) | entry: meta[:entry] |> as_atom()},
+      meta: %{struct(Story.Meta, meta) | entry: meta[:entry] |> as_atom()},
       puzzles: build_puzzles(data, meta[:tries] |> as_int())
     }
   end
 
-  # @spec save(Story.t()) :: binary()
+  @spec save(Story.t()) :: binary()
   def save(story) do
-    new_id()
-    |> IO.inspect()
-    |> File.write!(story)
+    id = new_id()
+    path(id) |> File.write!(story)
+    id
   end
 
   def path(id), do: Path.join(@stories_dir, id <> ".yaml")
 
   def new_id() do
-    DateTime.now!("Etc/UTC")
-    |> to_string()
-    |> String.replace(":", "-")
-    |> String.replace(".", "_")
-    |> String.replace(" ", "_")
+    DateTime.utc_now()
+    |> Calendar.strftime("%Y-%m-%d_%H-%M-%S_%f")
   end
 
   defp build_puzzles(data, tries) do

@@ -9,10 +9,20 @@ defmodule PuzzleGame.Story do
 
   defstruct [:meta, :puzzles]
 
-  def entry_puzzle(%__MODULE__{meta: %Meta{entry: entry}} = story),
-    do: next_puzzle(story, %Puzzle{next: entry})
+  def entry_puzzle(%__MODULE__{meta: meta, puzzles: puzzles}),
+    do: puzzles[meta.entry]
 
-  @doc "Returns next puzzle if exists else nil"
-  def next_puzzle(%__MODULE__{puzzles: puzzles}, %Puzzle{next: next}),
-    do: if(next, do: Map.get(puzzles, next))
+  @doc "Process answer, returns {game or nil, message}"
+  def next_puzzle(%__MODULE__{puzzles: puzzles}, puzzle, answer) do
+    case Puzzle.check_answer(puzzle, answer) do
+      {:pass, puzzle} ->
+        {puzzles[puzzle.next], puzzle.pass}
+
+      {:hint, puzzle} ->
+        {puzzle, puzzle.hint}
+
+      {:fail, _} ->
+        {nil, "Better luck next time!"}
+    end
+  end
 end

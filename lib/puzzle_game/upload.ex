@@ -1,19 +1,25 @@
 defmodule PuzzleGame.Upload do
-  alias PuzzleGame.Story.Importer
+  alias PuzzleGame.Session
+  alias PuzzleGame.Story.Store
+
+  @behaviour Session
 
   @type t :: %__MODULE__{buffer: binary()}
   defstruct [:buffer]
 
-  def new() do
-    %__MODULE__{buffer: <<>>}
+  @impl true
+  def init() do
+    {%__MODULE__{buffer: <<>>}, nil}
   end
 
-  @spec handle(t(), binary()) :: t()
+  @impl true
   def handle(upload, input) do
-    update_in(upload.buffer, &(&1 <> input))
+    {%{upload | buffer: upload.buffer <> input}, nil}
   end
 
+  @impl true
   def finish(upload) do
-    Importer.save(upload.buffer)
+    Store.save(upload.buffer)
+    |> IO.inspect()
   end
 end
