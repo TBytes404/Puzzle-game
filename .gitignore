@@ -24,3 +24,7 @@ puzzle_game-*.tar
 
 # Macos
 .DS_Store
+
+# Data
+!stories/locked-chambers.yaml
+stories/*
