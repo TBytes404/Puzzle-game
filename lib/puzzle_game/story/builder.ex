@@ -1,16 +1,13 @@
-defmodule PuzzleGame.Story.Store do
-  @moduledoc "Loads and parses YAML story files into domain structs"
+defmodule PuzzleGame.Story.Builder do
+  @moduledoc "parses raw maps into domain structs"
 
-  @stories_dir "stories/"
-
-  alias PuzzleGame.Puzzle
   alias PuzzleGame.Story
+  alias PuzzleGame.Story.Puzzle
 
-  @spec load(binary()) :: Story.t()
-  def load(id) do
+  @spec from_map(map()) :: Story.t()
+  def from_map(map) do
     {meta, data} =
-      path(id)
-      |> YamlElixir.read_from_file!()
+      map
       |> atomize_keys()
       |> Map.pop(:__meta__)
 
@@ -18,20 +15,6 @@ defmodule PuzzleGame.Story.Store do
       meta: %{struct(Story.Meta, meta) | entry: meta[:entry] |> as_atom()},
       puzzles: build_puzzles(data, meta[:tries] |> as_int())
     }
-  end
-
-  @spec save(Story.t()) :: binary()
-  def save(story) do
-    id = new_id()
-    path(id) |> File.write!(story)
-    id
-  end
-
-  def path(id), do: Path.join(@stories_dir, id <> ".yaml")
-
-  def new_id() do
-    DateTime.utc_now()
-    |> Calendar.strftime("%Y-%m-%d_%H-%M-%S_%f")
   end
 
   defp build_puzzles(data, tries) do

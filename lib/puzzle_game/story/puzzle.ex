@@ -1,7 +1,8 @@
-defmodule PuzzleGame.Puzzle do
+defmodule PuzzleGame.Story.Puzzle do
+  @type t() :: %__MODULE__{}
   defstruct [:label, :quest, :answer, :hint, :pass, :next, tries: 0]
 
-  @doc "Check if input matches puzzle answer, returns {:pass or :hint or :fail, message, puzzle}"
+  @spec check_answer(t(), binary()) :: {:pass | :hint | :fail, t()}
   def check_answer(%__MODULE__{answer: answer, tries: tries} = puzzle, input) do
     if normalize(answer) == normalize(input) do
       {:pass, puzzle}

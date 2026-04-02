@@ -1,18 +1,16 @@
 defmodule PuzzleGame.Story do
-  @moduledoc "Provides puzzle access and navigation"
+  @moduledoc "Provides puzzle access logic"
 
-  defmodule Meta do
-    defstruct [:title, :author, :entry, tries: 1]
-  end
+  alias PuzzleGame.Story.Meta
+  alias PuzzleGame.Story.Puzzle
 
-  alias PuzzleGame.Puzzle
-
+  @type t :: %__MODULE__{meta: Meta, puzzles: %Puzzle{}}
   defstruct [:meta, :puzzles]
 
   def entry_puzzle(%__MODULE__{meta: meta, puzzles: puzzles}),
     do: puzzles[meta.entry]
 
-  @doc "Process answer, returns {game or nil, message}"
+  @spec next_puzzle(t(), Puzzle, binary()) :: {Puzzle | nil, binary()}
   def next_puzzle(%__MODULE__{puzzles: puzzles}, puzzle, answer) do
     case Puzzle.check_answer(puzzle, answer) do
       {:pass, puzzle} ->

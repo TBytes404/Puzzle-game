@@ -1,10 +1,12 @@
-defmodule PuzzleGame.Game do
+defmodule PuzzleGame.Session.Game do
   @moduledoc "Game state machine - pure logic, no IO"
 
-  alias PuzzleGame.Puzzle
-  alias PuzzleGame.Session
   alias PuzzleGame.Story
-  alias PuzzleGame.Story.Store
+  alias PuzzleGame.Story.Builder
+  alias PuzzleGame.Story.Puzzle
+  alias PuzzleGame.Storage
+  alias PuzzleGame.Session
+  alias PuzzleGame.Session.Menu
 
   @behaviour Session
 
@@ -12,7 +14,9 @@ defmodule PuzzleGame.Game do
 
   @impl true
   def init() do
-    story = Store.load("locked-chambers")
+    story =
+      Storage.load("locked-chambers")
+      |> Builder.from_map()
 
     game = %__MODULE__{
       story: story,
@@ -25,13 +29,13 @@ defmodule PuzzleGame.Game do
   @impl true
   def handle(%__MODULE__{story: story, puzzle: puzzle} = game, input) do
     case Story.next_puzzle(story, puzzle, input) do
-      {nil, msg} -> {nil, msg <> "\n"}
-      {puzzle, msg} -> {%{game | puzzle: puzzle}, msg <> prompt(puzzle)}
+      {nil, msg} -> {{:switch, Menu}, msg <> "\n"}
+      {puzzle, msg} -> {{:continue, %{game | puzzle: puzzle}}, msg <> prompt(puzzle)}
     end
   end
 
   @impl true
-  def finish(_), do: nil
+  def stop(_), do: nil
 
   defp header(%Story{meta: meta}),
     do: "\n#{meta.title}\t\tby #{meta.author}"

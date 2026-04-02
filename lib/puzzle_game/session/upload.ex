@@ -1,6 +1,6 @@
-defmodule PuzzleGame.Upload do
+defmodule PuzzleGame.Session.Upload do
   alias PuzzleGame.Session
-  alias PuzzleGame.Story.Store
+  alias PuzzleGame.Storage
 
   @behaviour Session
 
@@ -13,13 +13,13 @@ defmodule PuzzleGame.Upload do
   end
 
   @impl true
-  def handle(upload, input) do
-    {%{upload | buffer: upload.buffer <> input}, nil}
+  def handle(upload, data) do
+    {{:continue, %{upload | buffer: upload.buffer <> data}}, nil}
   end
 
   @impl true
-  def finish(upload) do
-    Store.save(upload.buffer)
+  def stop(upload) do
+    Storage.save(upload.buffer)
     |> IO.inspect()
   end
 end
