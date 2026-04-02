@@ -1,19 +1,25 @@
 # PuzzleGame
 
-A CLI escape-room puzzle game. Play through YAML-defined stories, solve riddles, escape!
+A TCP based CLI escape-room puzzle game. Play through YAML-defined stories, solve riddles, escape!
 
 ## Server
 
 ```bash
 mix deps.get   # Install
-mix start      # Play
-mix start 4049 path/to/story.yml   # Custom port & story
+mix run -e "PuzzleGame.Endpoint.start"       # Start Server
 ```
 
 ## Client
 
 ```bash
+ # Start interactive session
 nc localhost 4049
+
+# Upload a story file | COMMAND: UPLOAD <BINARY_SIZE>
+f=path_to_story_file.yaml;
+s=$(stat -f %z $f) # Macos
+s=$(stat -c %f $f) # Linux
+echo "upload $s" | nc localhost 4049 < $f;
 ```
 
 ## Creating Stories
@@ -38,11 +44,3 @@ end:
   hint: "Hint"
   pass: "You escaped!"
 ```
-
-## Architecture
-
-- `Start` - Mix Task
-- `Game` - Game Logic
-- `Game.Server` - Game loop & I/O
-- `Story` & `Puzzle` - Domain Models
-- `Story.Importer` - Loads puzzles (YAML)

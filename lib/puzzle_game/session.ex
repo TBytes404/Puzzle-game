@@ -1,35 +1,40 @@
 defmodule PuzzleGame.Session do
-  @callback init() :: {any(), iodata() | nil}
+  @callback init(any()) :: {any(), iodata() | nil}
   @callback handle(any(), binary()) ::
-              {{:continue, any() | :switch, module() | :stop}, iodata() | nil}
+              {{:exit | :done | :continue, any() | :switch, module(), any()}, iodata() | nil}
   @callback stop(any()) :: nil
+
+  alias PuzzleGame.Session.Menu
 
   defstruct [:socket, :handler, :state]
 
-  def start(sock, handler), do: init(sock, handler) |> loop
+  def start(sock), do: boot(sock, Menu, nil) |> loop
 
-  defp init(sock, handler) do
-    {state, header} = handler.init()
-    if header, do: :ok = :gen_tcp.send(sock, header)
+  defp boot(sock, handler, opts) do
+    {state, header} = handler.init(opts)
+    send_message(sock, header)
     %__MODULE__{socket: sock, handler: handler, state: state}
   end
 
   defp loop(%__MODULE__{socket: sock, handler: handler} = session) do
-    :ok = :inet.setopts(session.socket, active: :once)
+    :inet.setopts(session.socket, active: :once)
 
     receive do
       {:tcp, ^sock, input} ->
         case handler.handle(session.state, input) do
-          {:stop, msg} ->
-            if msg, do: :ok = :gen_tcp.send(sock, msg)
-            handler.stop(session.state)
+          {:exit, msg} ->
+            send_message(sock, msg)
 
-          {{:switch, handler}, msg} ->
-            if msg, do: :ok = :gen_tcp.send(sock, msg)
-            init(sock, handler) |> loop()
+          {:done, msg} ->
+            send_message(sock, msg)
+            boot(sock, Menu, nil) |> loop()
+
+          {{:switch, handler, opts}, msg} ->
+            send_message(sock, msg)
+            boot(sock, handler, opts) |> loop()
 
           {{:continue, new_state}, msg} ->
-            if msg, do: :ok = :gen_tcp.send(sock, msg)
+            send_message(sock, msg)
             loop(%{session | state: new_state})
         end
 
@@ -40,4 +45,9 @@ defmodule PuzzleGame.Session do
         IO.inspect(unknown)
     end
   end
+
+  defp send_message(_, nil), do: nil
+
+  defp send_message(sock, msg),
+    do: if(msg, do: :gen_tcp.send(sock, msg))
 end
